@@ -1,11 +1,14 @@
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { join } from 'node:path'
+import { chooseRepo, getRepo, listIssues } from './repo'
 import { checkTools, loadShellPath } from './tools'
 
 function createWindow(): void {
   const win = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    width: 1280,
+    height: 840,
+    minWidth: 960,
+    minHeight: 640,
     title: 'Usho',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -30,6 +33,9 @@ function createWindow(): void {
 app.whenReady().then(async () => {
   await loadShellPath()
   ipcMain.handle('tools:check', () => checkTools())
+  ipcMain.handle('repo:get', () => getRepo())
+  ipcMain.handle('repo:choose', (event) => chooseRepo(BrowserWindow.fromWebContents(event.sender)))
+  ipcMain.handle('issues:list', () => listIssues())
   createWindow()
 
   app.on('activate', () => {

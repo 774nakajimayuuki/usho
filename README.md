@@ -4,7 +4,7 @@ Run Claude Code and Codex per GitHub issue, and watch every status on one board.
 
 A *usho* (鵜匠) is a cormorant master: one person who handles a dozen birds on lines at once and collects what each one catches. Usho does the same for AI coding agents — hand each issue to an agent, and keep track of all of them from one place.
 
-> Early development. Nothing works end to end yet.
+> Early development. The board runs on sample data; no agents are started yet.
 
 ## Requirements
 
