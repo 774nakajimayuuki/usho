@@ -6,10 +6,10 @@ import type { QueuedTask } from '../tasks'
 interface NeedsYouProps {
   queue: QueuedTask[]
   parked: ParkedGroup[]
-  selectedId: string
+  selectedId: string | null
   onSelect: (id: string) => void
   onAct: (task: QueuedTask) => void
-  /** More parked groups, shown after the sample ones */
+  /** More parked groups, shown after these */
   children?: ReactNode
 }
 
@@ -18,7 +18,7 @@ export function NeedsYou({ queue, parked, selectedId, onSelect, onAct, children 
     <nav className="needs" aria-label="Needs you">
       <div className="needs-head">
         <h2>
-          Needs you <span className="count">{queue.length}</span> <span className="sample-tag">Sample data</span>
+          Needs you <span className="count">{queue.length}</span>
         </h2>
         <span className="hint">Longest blocked first</span>
       </div>
@@ -64,9 +64,7 @@ export function NeedsYou({ queue, parked, selectedId, onSelect, onAct, children 
       {parked.map((group) => (
         <div key={group.label} className="parked">
           <div className="parked-title">
-            <span>
-              {group.label} <span className="sample-tag">Sample</span>
-            </span>
+            {group.label}
             <span className="muted">{group.items.length}</span>
           </div>
           <ul>

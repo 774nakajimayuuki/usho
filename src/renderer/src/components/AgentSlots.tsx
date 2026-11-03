@@ -1,11 +1,10 @@
-import type { Task } from '../../../shared/types'
+import { SLOT_COUNT, type Task } from '../../../shared/types'
 import { cx, formatConfig, STAGES, stageIndex } from '../format'
-import { SLOT_COUNT } from '../tasks'
 import { modKey } from '../useShortcuts'
 
 interface AgentSlotsProps {
   tasks: Task[]
-  selectedId: string
+  selectedId: string | null
   onSelect: (id: string) => void
 }
 
@@ -21,8 +20,7 @@ export function AgentSlots({ tasks, selectedId, onSelect }: AgentSlotsProps) {
           Agents{' '}
           <span className="muted">
             {busy} of {SLOT_COUNT} slots
-          </span>{' '}
-          <span className="sample-tag">Sample data</span>
+          </span>
         </h2>
         <span className="hint">
           A task keeps its slot until it finishes · <kbd>{modKey}1</kbd>–<kbd>{modKey + SLOT_COUNT}</kbd> jump to a

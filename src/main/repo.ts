@@ -1,6 +1,7 @@
 import { dialog, type BrowserWindow, type OpenDialogOptions } from 'electron'
 import type { Issue, RepoInfo, Result } from '../shared/types'
-import { ghErrorText, listOpenIssues, readRepo } from './github'
+import { errorText } from './exec'
+import { listOpenIssues, readRepo } from './github'
 import { loadSettings, saveSettings } from './settings'
 
 let current: RepoInfo | null = null
@@ -13,7 +14,7 @@ export async function getRepo(): Promise<Result<RepoInfo | null>> {
     current = await readRepo(repoPath)
     return { ok: true, value: current }
   } catch (err) {
-    return { ok: false, error: `Could not open ${repoPath}: ${ghErrorText(err)}` }
+    return { ok: false, error: `Could not open ${repoPath}: ${errorText(err)}` }
   }
 }
 
@@ -31,7 +32,7 @@ export async function chooseRepo(win: BrowserWindow | null): Promise<Result<Repo
     await saveSettings({ repoPath: path })
     return { ok: true, value: current }
   } catch (err) {
-    return { ok: false, error: `${path} is not a clone of a GitHub repository: ${ghErrorText(err)}` }
+    return { ok: false, error: `${path} is not a clone of a GitHub repository: ${errorText(err)}` }
   }
 }
 
@@ -42,6 +43,6 @@ export async function listIssues(): Promise<Result<Issue[]>> {
   try {
     return { ok: true, value: await listOpenIssues(repo.value) }
   } catch (err) {
-    return { ok: false, error: ghErrorText(err) }
+    return { ok: false, error: errorText(err) }
   }
 }

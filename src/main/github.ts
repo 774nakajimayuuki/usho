@@ -1,32 +1,36 @@
-import { execFile } from 'node:child_process'
-import { promisify } from 'node:util'
 import type { Issue, RepoInfo } from '../shared/types'
-
-const execFileAsync = promisify(execFile)
-
-async function gh(args: string[], cwd: string): Promise<string> {
-  const { stdout } = await execFileAsync('gh', args, { cwd, timeout: 30_000, maxBuffer: 16 * 1024 * 1024 })
-  return stdout
-}
-
-/** gh explains most failures on stderr, such as "not a git repository". */
-export function ghErrorText(err: unknown): string {
-  const stderr = (err as { stderr?: unknown }).stderr
-  if (typeof stderr === 'string' && stderr.trim()) return stderr.trim()
-  return err instanceof Error ? err.message : String(err)
-}
+import { run } from './exec'
 
 /** Finds the GitHub repository a local clone belongs to. Throws if the folder is not one. */
 export async function readRepo(path: string): Promise<RepoInfo> {
-  const repo = JSON.parse(await gh(['repo', 'view', '--json', 'nameWithOwner,url'], path)) as {
-    nameWithOwner: string
-    url: string
+  const out = await run('gh', ['repo', 'view', '--json', 'nameWithOwner,url,defaultBranchRef'], path)
+  const repo = JSON.parse(out) as { nameWithOwner: string; url: string; defaultBranchRef: { name: string } }
+  return { path, nameWithOwner: repo.nameWithOwner, url: repo.url, defaultBranch: repo.defaultBranchRef.name }
+}
+
+export interface IssueContent {
+  title: string
+  body: string
+  comments: { author: string; body: string }[]
+}
+
+export async function readIssue(repo: string, number: number, cwd: string): Promise<IssueContent> {
+  const out = await run('gh', ['issue', 'view', String(number), '--repo', repo, '--json', 'title,body,comments'], cwd)
+  const issue = JSON.parse(out) as {
+    title: string
+    body: string
+    comments: { author: { login: string } | null; body: string }[]
   }
-  return { path, nameWithOwner: repo.nameWithOwner, url: repo.url }
+  return {
+    title: issue.title,
+    body: issue.body,
+    comments: issue.comments.map((c) => ({ author: c.author?.login ?? 'someone', body: c.body }))
+  }
 }
 
 export async function listOpenIssues(repo: RepoInfo): Promise<Issue[]> {
-  const out = await gh(
+  const out = await run(
+    'gh',
     [
       'issue',
       'list',

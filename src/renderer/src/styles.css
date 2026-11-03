@@ -24,6 +24,7 @@
   --code-fg: #e6e8eb;
   --low-risk-bg: #e7f6ec;
   --low-risk-fg: #08643a;
+  --high-risk-bg: #feeceb;
   --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
   font-size: 14px;
@@ -58,6 +59,7 @@
     --code-fg: #e6e8eb;
     --low-risk-bg: #12361f;
     --low-risk-fg: #7ee2a1;
+    --high-risk-bg: #3d1614;
   }
 }
 
@@ -476,8 +478,73 @@ kbd {
 }
 
 .issue-list {
-  max-height: 360px;
+  max-height: 420px;
   overflow-y: auto;
+}
+
+.issue-list .issue {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.issue-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.issue-tasks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding-left: 12px;
+}
+
+.task-chip {
+  padding: 1px 7px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-2);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.task-chip:hover {
+  background: var(--surface-2);
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 20px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--problem-edge);
+  color: var(--problem);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.detail-branch {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.confirm {
+  align-items: center;
+}
+
+.confirm-text {
+  flex: 1 1 280px;
+  color: var(--text-2);
+  font-size: 13px;
 }
 
 .issue-link {
@@ -505,17 +572,6 @@ kbd {
 .link-btn:disabled {
   color: var(--muted);
   cursor: default;
-}
-
-/* Marks the parts of the board that still show sample data */
-.sample-tag {
-  padding: 1px 6px;
-  border: 1px dashed var(--border-strong);
-  border-radius: 6px;
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 600;
-  vertical-align: middle;
 }
 
 /* Agent slots */
@@ -779,10 +835,20 @@ kbd {
 .risk {
   padding: 1px 8px;
   border-radius: 999px;
-  background: var(--low-risk-bg);
-  color: var(--low-risk-fg);
+  background: var(--chip);
+  color: var(--text-2);
   font-size: 12px;
   font-weight: 600;
+}
+
+.risk.is-low {
+  background: var(--low-risk-bg);
+  color: var(--low-risk-fg);
+}
+
+.risk.is-high {
+  background: var(--high-risk-bg);
+  color: var(--problem);
 }
 
 .code {

@@ -1,15 +1,21 @@
-import type { RepoInfo } from '../../../shared/types'
-import { timeAgo } from '../format'
+import { useState } from 'react'
+import type { Issue, Preset, RepoInfo, TaskRecord } from '../../../shared/types'
+import { formatConfig, timeAgo } from '../format'
+import { shortState } from '../tasks'
 import type { IssuesState } from '../useRepo'
 
 interface OpenIssuesProps {
   repo: RepoInfo | null
   state: IssuesState
+  tasks: TaskRecord[]
+  preset: Preset
   onChooseRepo: () => void
   onRefresh: () => void
+  onStart: (issue: Issue) => Promise<void>
+  onSelectTask: (id: string) => void
 }
 
-export function OpenIssues({ repo, state, onChooseRepo, onRefresh }: OpenIssuesProps) {
+export function OpenIssues({ repo, state, onRefresh, ...rest }: OpenIssuesProps) {
   return (
     <div className="parked">
       <div className="parked-title">
@@ -23,12 +29,28 @@ export function OpenIssues({ repo, state, onChooseRepo, onRefresh }: OpenIssuesP
           )}
         </span>
       </div>
-      <IssuesBody repo={repo} state={state} onChooseRepo={onChooseRepo} />
+      <IssuesBody repo={repo} state={state} {...rest} />
     </div>
   )
 }
 
-function IssuesBody({ repo, state, onChooseRepo }: Omit<OpenIssuesProps, 'onRefresh'>) {
+function IssuesBody({
+  repo,
+  state,
+  tasks,
+  preset,
+  onChooseRepo,
+  onStart,
+  onSelectTask
+}: Omit<OpenIssuesProps, 'onRefresh'>) {
+  const [starting, setStarting] = useState<number | null>(null)
+
+  async function start(issue: Issue): Promise<void> {
+    setStarting(issue.number)
+    await onStart(issue)
+    setStarting(null)
+  }
+
   switch (state.status) {
     case 'loading':
       return <p className="parked-message">Loading issues…</p>
@@ -61,15 +83,43 @@ function IssuesBody({ repo, state, onChooseRepo }: Omit<OpenIssuesProps, 'onRefr
       }
       return (
         <ul className="issue-list">
-          {state.issues.map((issue) => (
-            <li key={issue.number}>
-              <a className="issue-link" href={issue.url} target="_blank" rel="noreferrer">
-                <span className="mono muted">#{issue.number}</span>
-                <span className="ellipsis">{issue.title}</span>
-              </a>
-              <span className="meta">{timeAgo(issue.updatedAt)}</span>
-            </li>
-          ))}
+          {state.issues.map((issue) => {
+            const linked = tasks.filter((t) => t.repo === repo?.nameWithOwner && t.issue?.number === issue.number)
+            return (
+              <li key={issue.number} className="issue">
+                <div className="issue-row">
+                  <a
+                    className="issue-link"
+                    href={issue.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    title={`Updated ${timeAgo(issue.updatedAt)}`}
+                  >
+                    <span className="mono muted">#{issue.number}</span>
+                    <span className="ellipsis">{issue.title}</span>
+                  </a>
+                  <button
+                    type="button"
+                    className="link-btn"
+                    onClick={() => void start(issue)}
+                    disabled={starting !== null}
+                    title={`Start a task with ${preset.label}: ${formatConfig(preset.config, true)}`}
+                  >
+                    {starting === issue.number ? 'Starting…' : 'Start'}
+                  </button>
+                </div>
+                {linked.length > 0 && (
+                  <div className="issue-tasks">
+                    {linked.map((task) => (
+                      <button key={task.id} type="button" className="task-chip" onClick={() => onSelectTask(task.id)}>
+                        {shortState(task)} · {formatConfig(task.config)}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </li>
+            )
+          })}
         </ul>
       )
   }

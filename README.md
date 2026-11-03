@@ -4,7 +4,9 @@ Run Claude Code and Codex per GitHub issue, and watch every status on one board.
 
 A *usho* (鵜匠) is a cormorant master: one person who handles a dozen birds on lines at once and collects what each one catches. Usho does the same for AI coding agents — hand each issue to an agent, and keep track of all of them from one place.
 
-> Early development. The board runs on sample data; no agents are started yet.
+> Early development. Starting a task from an issue runs Claude Code in its own branch and worktree. Codex is not connected yet.
+
+Usho runs the `claude` CLI you are signed in to (`claude auth login`). File edits inside the task's worktree are allowed, and so is what Claude Code allows on its own (such as `ls` or `git diff`). Anything it would normally ask permission for waits for your approval on the board.
 
 ## Requirements
 

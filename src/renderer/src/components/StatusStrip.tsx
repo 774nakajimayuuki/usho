@@ -1,6 +1,5 @@
-import type { ParkedGroup, Preset, ToolStatus } from '../../../shared/types'
+import { SLOT_COUNT, type ParkedGroup, type Preset, type ToolStatus } from '../../../shared/types'
 import { cx, formatConfig, plural } from '../format'
-import { SLOT_COUNT } from '../tasks'
 
 interface StatusStripProps {
   needCount: number
@@ -24,10 +23,14 @@ export function StatusStrip({
 }: StatusStripProps) {
   return (
     <div className="strip">
-      <span className="strip-need">
-        <span className="dot" />
-        {needCount} need you · {plural(blockedCount, 'agent')} blocked on you
-      </span>
+      {needCount > 0 ? (
+        <span className="strip-need">
+          <span className="dot" />
+          {needCount} need you · {plural(blockedCount, 'agent')} blocked on you
+        </span>
+      ) : (
+        <span>Nothing needs you</span>
+      )}
       <span>
         {busySlots} of {SLOT_COUNT} slots busy
       </span>

@@ -1,13 +1,15 @@
 import type { Task } from '../../../shared/types'
+import { cx } from '../format'
 
 interface DecisionCardProps {
   task: Task
   onAllow: () => void
   onDeny: () => void
+  onStop: () => void
 }
 
 /** What the selected task needs from you, in the colors of its level. */
-export function DecisionCard({ task, onAllow, onDeny }: DecisionCardProps) {
+export function DecisionCard({ task, onAllow, onDeny, onStop }: DecisionCardProps) {
   const { decision } = task
   const agent = task.config.agent
 
@@ -17,15 +19,12 @@ export function DecisionCard({ task, onAllow, onDeny }: DecisionCardProps) {
         <div className="decision level-attention">
           <div className="decision-title">
             {agent} is waiting for you
-            <span className="risk">{decision.risk}</span>
+            <span className={cx('risk', `is-${decision.riskLevel}`)}>{decision.risk}</span>
           </div>
           <pre className="code">{decision.command}</pre>
           <div className="actions">
             <button type="button" className="btn primary" onClick={onAllow}>
               Allow once <kbd>A</kbd>
-            </button>
-            <button type="button" className="btn">
-              Always allow this command
             </button>
             <button type="button" className="btn danger" onClick={onDeny}>
               Deny <kbd>D</kbd>
@@ -40,11 +39,8 @@ export function DecisionCard({ task, onAllow, onDeny }: DecisionCardProps) {
           <div className="decision-title">No output from {agent} for a while</div>
           <pre className="code">{decision.tail}</pre>
           <div className="actions">
-            <button type="button" className="btn primary">
-              Ask how it is going
-            </button>
-            <button type="button" className="btn danger">
-              Stop and free the slot
+            <button type="button" className="btn danger" onClick={onStop}>
+              Stop the agent
             </button>
           </div>
         </div>
@@ -55,14 +51,6 @@ export function DecisionCard({ task, onAllow, onDeny }: DecisionCardProps) {
         <div className="decision level-problem">
           <div className="decision-title">{agent} stopped</div>
           <pre className="code">{decision.error}</pre>
-          <div className="actions">
-            <button type="button" className="btn primary">
-              Ask {agent} to fix it
-            </button>
-            <button type="button" className="btn">
-              Retry from the start
-            </button>
-          </div>
         </div>
       )
 
@@ -78,14 +66,6 @@ export function DecisionCard({ task, onAllow, onDeny }: DecisionCardProps) {
               </li>
             ))}
           </ul>
-          <div className="actions">
-            <button type="button" className="btn primary">
-              Open PR on GitHub
-            </button>
-            <button type="button" className="btn">
-              Send feedback to {agent}
-            </button>
-          </div>
         </div>
       )
 
@@ -98,9 +78,6 @@ export function DecisionCard({ task, onAllow, onDeny }: DecisionCardProps) {
             <button type="button" className="btn primary" onClick={() => void navigator.clipboard.writeText(decision.text)}>
               Copy
             </button>
-            <button type="button" className="btn">
-              Turn into an issue
-            </button>
           </div>
         </div>
       )
@@ -109,12 +86,11 @@ export function DecisionCard({ task, onAllow, onDeny }: DecisionCardProps) {
       return (
         <div className="decision is-calm">
           <span className="calm-text">Nothing needed from you right now. Now: {task.status}</span>
-          <button type="button" className="btn">
-            Send a message
-          </button>
-          <button type="button" className="btn danger">
-            Stop
-          </button>
+          {task.canStop && (
+            <button type="button" className="btn danger" onClick={onStop}>
+              Stop
+            </button>
+          )}
         </div>
       )
   }
