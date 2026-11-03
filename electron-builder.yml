@@ -1,0 +1,12 @@
+appId: io.github.774nakajimayuuki.usho
+productName: Usho
+directories:
+  buildResources: build
+  output: dist
+files:
+  - out/**
+mac:
+  target: dmg
+  category: public.app-category.developer-tools
+win:
+  target: nsis
